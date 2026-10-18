@@ -1,1 +1,417 @@
 
+
+<!DOCTYPE html>
+
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>ELEMENTAL QUEST</title>
+
+<style>
+
+*{box-sizing:border-box}
+
+body{margin:0;background:#0b1220;color:#f5f0e5;font-family:system-ui,sans-serif}
+
+header{text-align:center;padding:20px 10px;background:linear-gradient(135deg,#102d43,#38263b);border-bottom:2px solid #c7a15a}
+
+h1{font-family:Georgia,serif;font-size:clamp(25px,7vw,38px);color:#f5d58b;margin:0;letter-spacing:2px}
+
+header p{font-size:11px;letter-spacing:3px;color:#c8d5e4;margin:7px 0 0}
+
+main{max-width:650px;margin:auto;padding:12px}
+
+.panel{background:#172438;border:1px solid #41516a;border-radius:13px;padding:13px;margin-bottom:12px}
+
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+
+.stat{background:#0e1929;padding:10px;border-radius:9px;font-size:12px}
+
+.stat strong{display:block;color:#f5d58b;font-size:17px;margin-top:3px}
+
+.bar{height:9px;background:#39475a;border-radius:8px;overflow:hidden;margin-top:6px}
+
+.fill{height:100%;background:linear-gradient(90deg,#9f2635,#ff6658);transition:width .3s}
+
+.blue{background:linear-gradient(90deg,#087c87,#5ce2bd)}
+
+.arena{position:relative;overflow:hidden;height:310px;border-radius:10px;background:#101d2c}
+
+#scene{width:100%;height:100%;object-fit:cover;display:block}
+
+.shade{position:absolute;inset:0;background:linear-gradient(0deg,#09101aee,transparent 65%);pointer-events:none}
+
+.sceneText{position:absolute;bottom:12px;left:12px;right:12px;text-shadow:0 2px 5px #000}
+
+#enemyName{font-size:22px;font-weight:850}
+
+#enemyDesc{font-size:12px;color:#d6dfeb}
+
+.stage{text-align:center;color:#e9c578;font-size:12px;letter-spacing:2px;margin-bottom:9px}
+
+.enemyHp{font-size:12px;margin-top:8px}
+
+.question{text-align:center;font-size:clamp(37px,10vw,49px);font-weight:850;padding:12px;color:#fff}
+
+input{width:100%;padding:13px;border:2px solid #52627a;border-radius:10px;background:#0b1422;color:white;text-align:center;font-size:26px}
+
+button{width:100%;padding:13px;border:0;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer}
+
+.primary{background:linear-gradient(100deg,#f2d28a,#bb883e);color:#182131;margin-top:9px}
+
+.secondary{background:#344760;color:white;margin-top:8px}
+
+button:disabled{opacity:.5}
+
+#message{min-height:46px;text-align:center;padding:12px 0;color:#f6d58b;font-weight:750}
+
+#next{display:none}
+
+.small{font-size:12px;color:#b7c6d8;line-height:1.7}
+
+footer{text-align:center;color:#7e91a8;font-size:11px;padding:15px}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<h1>ELEMENTAL QUEST</h1>
+
+<p>算術の竜王 — THE LAST DRAGON</p>
+
+</header>
+
+<main>
+
+<div class="panel">
+
+<div class="stats">
+
+<div class="stat">冒険者<strong id="level">Lv.1 見習い騎士</strong>
+
+<div class="bar"><div class="fill blue" id="xpbar" style="width:0%"></div></div>
+
+<div id="xptext">EXP 0 / 20</div></div>
+
+<div class="stat">生命力<strong id="hptext">30 / 30</strong>
+
+<div class="bar"><div class="fill blue" id="hpbar"></div></div>
+
+武器：<span id="weapon">鉄の剣</span></div>
+
+</div>
+
+</div>
+
+<div class="panel">
+
+<div class="stage" id="stage">STAGE 1 / 10</div>
+
+<div class="arena">
+
+<img id="scene" alt="モンスターの戦闘画像">
+
+<div class="shade"></div>
+
+<div class="sceneText">
+
+<div id="enemyName">森のゴブリン</div>
+
+<div id="enemyDesc">古代の森に潜む凶暴な魔物</div>
+
+<div class="enemyHp">MONSTER HP <span id="enemyHpText">12 / 12</span>
+
+<div class="bar"><div class="fill" id="enemybar"></div></div></div>
+
+</div>
+
+</div>
+
+<div class="question" id="question">3 ＋ 4 ＝ ?</div>
+
+<input id="answer" type="number" inputmode="numeric" placeholder="答えを入力">
+
+<button class="primary" id="attack" onclick="attack()">⚔️ 答えて攻撃する</button>
+
+<div id="message" aria-live="polite">正解して魔物を倒そう！</div>
+
+<button class="primary" id="next" onclick="nextStage()">次のステージへ ➜</button>
+
+</div>
+
+<div class="panel">
+
+<strong>⚔️ 装備・冒険記録</strong>
+
+<p id="weaponInfo" class="small">鉄の剣：攻撃力 +0</p>
+
+<p id="log" class="small">冒険の始まりだ。10体の敵を倒して竜王を目指そう。</p>
+
+</div>
+
+<div class="panel">
+
+<strong>📜 冒険の目的</strong>
+
+<p class="small">足し算に正解すると攻撃できる。不正解だと反撃を受ける。敵を倒して経験値を集め、武器を手に入れよう。最後に待つ竜王を倒せ！</p>
+
+</div>
+
+<footer>ELEMENTAL QUEST · 数の力で運命を切り開け</footer>
+
+</main>
+
+<script>
+
+const enemies=[
+
+["森のゴブリン","古代の森に潜む凶暴な魔物",12,"goblin"],
+
+["洞窟の狼","闇の洞窟を駆ける獣",15,"wolf"],
+
+["岩のゴーレム","遺跡を守る石の巨人",18,"golem"],
+
+["毒沼の蛇竜","毒霧を操る沼地の番人",21,"serpent"],
+
+["炎の魔術師","灼熱の魔法を放つ敵",24,"sorcerer"],
+
+["氷の巨獣","凍てつく山の支配者",27,"beast"],
+
+["深淵の騎士","王国を裏切った黒き騎士",30,"knight"],
+
+["古代のワイバーン","空を覆う翼を持つ竜",34,"wyvern"],
+
+["魔王の守護竜","竜王の城を守る強大な竜",38,"dragon"],
+
+["竜王アズラグ","世界を闇に沈める最終ボス",45,"king"]
+
+];
+
+const imageUrls=[
+
+"https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1000&q=85",
+
+"https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=1000&q=85",
+
+"https://images.unsplash.com/photo-1518709594023-6eab9bab7b23?auto=format&fit=crop&w=1000&q=85",
+
+"https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=1000&q=85",
+
+"https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=1000&q=85",
+
+"https://images.unsplash.com/photo-1457269449834-928af64c684d?auto=format&fit=crop&w=1000&q=85",
+
+"https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1000&q=85",
+
+"https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1000&q=85",
+
+"https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1000&q=85",
+
+"https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1000&q=85"
+
+];
+
+const weapons=[
+
+{name:"鉄の剣",power:0},
+
+{name:"騎士の長剣",power:2},
+
+{name:"炎の剣",power:3},
+
+{name:"氷晶の刃",power:4},
+
+{name:"竜牙の大剣",power:6},
+
+{name:"王者の聖剣",power:8}
+
+];
+
+let stage=0,enemyHp=12,hp=30,maxHp=30,xp=0,level=1,weapon=weapons[0],a=3,b=4,locked=false;
+
+const el=id=>document.getElementById(id);
+
+function question(){
+
+ a=Math.floor(Math.random()*10)+1;
+
+ b=Math.floor(Math.random()*(20-a+1));
+
+ el("question").textContent=a+" ＋ "+b+" ＝ ?";
+
+ el("answer").value="";
+
+}
+
+function update(){
+
+ let e=enemies[stage];
+
+ el("stage").textContent="STAGE "+(stage+1)+" / 10";
+
+ el("enemyName").textContent=e[0];
+
+ el("enemyDesc").textContent=e[1];
+
+ el("enemyHpText").textContent=Math.max(0,enemyHp)+" / "+e[2];
+
+ el("enemybar").style.width=(Math.max(0,enemyHp)/e[2]*100)+"%";
+
+ el("hptext").textContent=hp+" / "+maxHp;
+
+ el("hpbar").style.width=(hp/maxHp*100)+"%";
+
+ el("level").textContent="Lv."+level+" "+(level<3?"見習い騎士":level<6?"王国騎士":"竜殺し");
+
+ el("xptext").textContent="EXP "+xp+" / "+(level*20);
+
+ el("xpbar").style.width=(xp/(level*20)*100)+"%";
+
+ el("weapon").textContent=weapon.name;
+
+ el("weaponInfo").textContent="装備："+weapon.name+"（攻撃力 +"+weapon.power+"）";
+
+}
+
+function loadImage(){
+
+ const img=el("scene");
+
+ img.onerror=()=>{
+
+   img.onerror=null;
+
+   img.removeAttribute("src");
+
+   img.style.display="none";
+
+   el("enemyDesc").textContent=enemies[stage][1]+"（画像を読み込めません）";
+
+ };
+
+ img.onload=()=>{img.style.display="block"};
+
+ img.src=imageUrls[stage];
+
+}
+
+function attack(){
+
+ if(locked)return;
+
+ if(el("answer").value===""){el("message").textContent="答えを入力してね！";return}
+
+ if(Number(el("answer").value)!==a+b){
+
+   hp=Math.max(0,hp-2);
+
+   if(hp===0){hp=20;el("message").textContent="力尽きた！ HP20で再挑戦しよう。"}
+
+   else el("message").textContent="不正解！ 敵の反撃！ HP −2";
+
+   update();question();return;
+
+ }
+
+ enemyHp=Math.max(0,enemyHp-5-weapon.power);
+
+ if(enemyHp>0){
+
+   el("message").textContent="正解！ "+(5+weapon.power)+" ダメージ！";
+
+   question();update();return;
+
+ }
+
+ locked=true;
+
+ xp+=8+stage*2;
+
+ let msg=enemies[stage][0]+"を撃破！ EXP獲得！";
+
+ if(xp>=level*20){
+
+   xp-=level*20;level++;maxHp+=5;hp=Math.min(maxHp,hp+10);
+
+   msg+=" レベルアップ！ HP回復！";
+
+ }
+
+ el("message").textContent=msg;
+
+ el("attack").disabled=true;
+
+ el("next").style.display="block";
+
+ if(stage===9){
+
+   el("next").textContent="冒険を最初からやり直す";
+
+   el("message").textContent="🏆 竜王を撃破！ 王国に平和が戻った！";
+
+   el("log").textContent="伝説の冒険者となった！";
+
+ }else{
+
+   el("next").textContent="次のステージへ ➜";
+
+   if(Math.random()<0.7){
+
+     let choices=weapons.filter(w=>w.power>weapon.power);
+
+     if(choices.length){
+
+       weapon=choices[Math.floor(Math.random()*choices.length)];
+
+       el("message").textContent+=" 🎁 武器入手："+weapon.name+"！";
+
+     }
+
+   }
+
+   el("log").textContent="ステージ"+(stage+1)+"を突破！ 次の敵に備えよう。";
+
+ }
+
+ update();
+
+}
+
+function nextStage(){
+
+ if(stage===9){stage=0;hp=30;maxHp=30;xp=0;level=1;weapon=weapons[0]}
+
+ else stage++;
+
+ enemyHp=enemies[stage][2];locked=false;
+
+ el("attack").disabled=false;
+
+ el("next").style.display="none";
+
+ el("message").textContent="新たな敵が現れた！ 正解して攻撃しよう！";
+
+ question();update();loadImage();
+
+}
+
+el("answer").addEventListener("keydown",e=>{if(e.key==="Enter")attack()});
+
+enemyHp=enemies[0][2];
+
+question();update();loadImage();
+
+</script>
+
+</body>
+
+</html>
